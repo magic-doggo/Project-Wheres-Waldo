@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Character {
+  id Int @id @default(autoincrement())
+  name String
+  iconUrl String
+  xCoord Float
+  yCoord Float //restrict range here somehow 0-1 ?
+  // radius Float @default(0.02) //maybe store in js instead?
+  foundInGames GameFoundCharacter[]
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+  startedAt DateTime @default(now())
+  endedAt DateTime  @updatedAt @default(now()) //maybe do not make default? only populate when all 3 characters are found instead?
+  duration Int //calculate in js, from start time to the time 3 updates were entered? 
+  playerName String @default("Anonymous")
+  foundCharacters GameFoundCharacter[]
+  // scores Score[]
+}
+
+model GameFoundCharacter { //what to make unique here? do I create new Id?
+  foundAt DateTime @default(now())
+  game Game @relation(fields: [gameId], references: [id]) 
+  gameId Int
+
+  character Character @relation(fields: [characterId], references: [id])
+  characterId Int
+
+  @@id([gameId, characterId])
+}
+
+// model Score {
+//   id Int @id @default(autoincrement())
+//   // game Game_Found_Characters @relation((fields: [game_id] references: [game_id]))
+//   game Game @relation(fields: [gameId], references: [id])
+//   gameId Int
+//   playerName String
+// }
