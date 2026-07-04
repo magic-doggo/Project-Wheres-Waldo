@@ -12,7 +12,7 @@ model Character {
   name String
   iconUrl String
   xCoord Float
-  yCoord Float //restrict range here somehow 0-1 ?
+  yCoord Float
   // radius Float @default(0.02) //maybe store in js instead?
   foundInGames GameFoundCharacter[]
 }
@@ -20,14 +20,14 @@ model Character {
 model Game {
   id Int @id @default(autoincrement())
   startedAt DateTime @default(now())
-  endedAt DateTime  @updatedAt @default(now()) //maybe do not make default? only populate when all 3 characters are found instead?
-  duration Int //calculate in js, from start time to the time 3 updates were entered? 
-  playerName String @default("Anonymous")
+  endedAt DateTime? //maybe do not make default updatedAt? only populate when all 3 characters are found instead?
+  durationMs Int? //calculate in js, from start time to the time 3 updates were entered?
+  playerName String?//do I remove default value and just show anonymous on frontend if db empty?
   foundCharacters GameFoundCharacter[]
   // scores Score[]
 }
 
-model GameFoundCharacter { //what to make unique here? do I create new Id?
+model GameFoundCharacter {
   foundAt DateTime @default(now())
   game Game @relation(fields: [gameId], references: [id]) 
   gameId Int
@@ -37,11 +37,3 @@ model GameFoundCharacter { //what to make unique here? do I create new Id?
 
   @@id([gameId, characterId])
 }
-
-// model Score {
-//   id Int @id @default(autoincrement())
-//   // game Game_Found_Characters @relation((fields: [game_id] references: [game_id]))
-//   game Game @relation(fields: [gameId], references: [id])
-//   gameId Int
-//   playerName String
-// }
