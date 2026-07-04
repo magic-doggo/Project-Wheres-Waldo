@@ -32,7 +32,8 @@ export default function App() {
       <div className="image-wrapper" style={{ position: 'relative' }}>
 
         <img
-          src="https://wallpapercave.com/wp/wp7156937.jpg"
+          // src="https://wallpapercave.com/wp/wp7156937.jpg"
+          src="wheres-waldo.webp"
           alt="where's waldo image"
           onClick={handleImageClick}
           style={{ maxWidth: '100%' }}
