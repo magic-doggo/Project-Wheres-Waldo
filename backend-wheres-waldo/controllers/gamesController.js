@@ -82,13 +82,16 @@ async function guessCharacter(req, res) {
             });
             return res.status(200).json({
                 duration: duration,
-                message: "You found everyone"
+                message: "You found everyone",
+                // match: true,
+                gameOver: true
             });
         };
 
         //if they found a character, but not all 3
         return res.status(200).json({ 
-            message: `You found ${character.name}!` 
+            message: `You found ${character.name}!`,
+            gameOver: false 
         });
 
         

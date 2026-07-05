@@ -1,5 +1,14 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
+const allowedOrigins = [
+  "http://localhost:5173", //frontend temporary
+];
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(express.json());
 
 const gamesRouter = require("./routes/gamesRouter");
