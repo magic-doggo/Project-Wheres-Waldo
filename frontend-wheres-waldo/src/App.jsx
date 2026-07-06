@@ -4,17 +4,18 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function App() {
   const [clickCoords, setClickCoords] = useState(null);
-  // const [characters, setCharacters] = useState([
-  //   { id: 1, name: "waldo", image: "https://res.cloudinary.com/magicdoggo/image/private/s--lefRfJmZ--/v1775204755/git1.jpg.jpg", coordinates: { x: 0.5, y: 0.7 } },
-  //   { id: 2, name: "maldo", image: "https://res.cloudinary.com/magicdoggo/image/private/s--lefRfJmZ--/v1775204755/git1.jpg.jpg", coordinates: { x: 0.4, y: 0.2 } }]); // pull from db once backend is created
   const [characters, setCharacters] = useState([]);
   const [gameId, setGameId] = useState(null);
   const [foundCharacterIds, setFoundCharacterIds] = useState([]);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [finalTimeMs, setFinalTimeMs] = useState(null);
 
 
   const notFoundCharacters = characters.filter((char) => !foundCharacterIds.includes(char.id))
 
   async function startGame() {
+    setIsGameOver(false);
+    setFinalTimeMs(null);
     try {
       const response = await fetch(`${API_BASE_URL}/api/games`, {
         method: "POST",
@@ -65,6 +66,8 @@ export default function App() {
         console.log(data.message);
         setFoundCharacterIds((prev) => [...prev, chosenCharacterId]);
         if (data.gameOver) {
+          setIsGameOver(true);
+          setFinalTimeMs(data.duration);
           console.log(`game won in ${data.duration} milliseconds`)
         }
       }
@@ -78,13 +81,15 @@ export default function App() {
   return (
     <div>
       <h1>Where's Waldo</h1>
+      {isGameOver && 
+      <h2>Gave Over! You won in {(finalTimeMs/1000).toFixed(2)} seconds</h2>}
       {!gameId ? (
         <button onClick={startGame}>Start Game</button>
       ) : (
         <div className="image-wrapper" style={{ position: 'relative' }}>
           <img
-            // src="https://wallpapercave.com/wp/wp7156937.jpg"
-            src="wheres-waldo.webp"
+            src="https://res.cloudinary.com/magicdoggo/image/upload/v1783315157/wheres-waldo_rcbhir.webp"
+            // src="wheres-waldo.webp"
             alt="where's waldo image"
             onClick={handleImageClick}
             style={{ maxWidth: '100%' }}
@@ -105,7 +110,7 @@ export default function App() {
                   zIndex: 10,
                 }}>
                 {notFoundCharacters.map((char) => (
-                  <button key={char.id} type="button" onClick={() => {guessCharacter(char.id), console.log(notFoundCharacters)}}>
+                  <button key={char.id} type="button" onClick={() => {guessCharacter(char.id)}}>
                     <img src={char.iconUrl} alt={char.name}
                       style={{
                         width: '48px',
@@ -122,42 +127,6 @@ export default function App() {
 
 
       <div className="image-wrapper" style={{ position: 'relative' }}>
-
-        {/* <img
-          // src="https://wallpapercave.com/wp/wp7156937.jpg"
-          src="wheres-waldo.webp"
-          alt="where's waldo image"
-          onClick={handleImageClick}
-          style={{ maxWidth: '100%' }}
-        />
-        {clickCoords && (
-          <div className="guess-character-container">
-            <div
-              style={{ position: 'fixed', inset: 0, zIndex: 5 }}  //covers entire screen while clickCoords are not null, to remove guess character tab on clicking anywhere
-              onClick={() => setClickCoords(null)}
-            />
-
-            <div
-              style={{
-                position: 'absolute',
-                left: `${clickCoords.x * 100}%`,
-                top: `${clickCoords.y * 100}%`,
-                width: 'max-content',
-                zIndex: 10,
-              }}>
-              {notFoundCharacters.map((char) => (
-                <button key={char.id} type="button" onClick={() => guessCharacter(char.id)}>
-                  <img src={char.image} alt={char.name}
-                    style={{
-                      width: '48px',
-                      height: '48px',
-                    }} />
-                  <div>{char.name}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )} */}
       </div>
     </div>
   )
