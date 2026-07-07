@@ -101,7 +101,24 @@ async function guessCharacter(req, res) {
     }
 }
 
+async function getLeaderboard(req, res){
+    try {
+        const topScores = await prisma.game.findMany({
+            where: {
+                durationMs: {not: null},
+            },
+            orderBy: {durationMs: 'asc'},
+            take: 10
+        });
+        res.json(topScores);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({error: "Failed to fetch Leaderboard"})
+    }
+}
+
 module.exports = {
     startGame,
-    guessCharacter
+    guessCharacter,
+    getLeaderboard
 }
