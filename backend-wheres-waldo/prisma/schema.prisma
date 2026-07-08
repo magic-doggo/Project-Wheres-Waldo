@@ -29,7 +29,7 @@ model Game {
 
 model GameFoundCharacter {
   foundAt DateTime @default(now())
-  game Game @relation(fields: [gameId], references: [id]) 
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade) 
   gameId Int
 
   character Character @relation(fields: [characterId], references: [id])
