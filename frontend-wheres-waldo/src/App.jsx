@@ -10,12 +10,14 @@ export default function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [finalTimeMs, setFinalTimeMs] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [username, setUsername] = useState("");
 
   const notFoundCharacters = characters.filter((char) => !foundCharacterIds.includes(char.id))
 
   async function startGame() {
     setIsGameOver(false);
     setFinalTimeMs(null);
+    setFoundCharacterIds([]);
     try {
       const response = await fetch(`${API_BASE_URL}/api/games`, {
         method: "POST",
@@ -60,8 +62,7 @@ export default function App() {
         setFoundCharacterIds((prev) => [...prev, chosenCharacterId]);
         if (data.gameOver) {
           setIsGameOver(true);
-          setFinalTimeMs(data.duration);
-          console.log(`game won in ${data.duration} milliseconds`);
+          setFinalTimeMs(data.durationMs);
           getLeaderboard();
         }
       }
@@ -79,8 +80,35 @@ export default function App() {
       });
       const data = await response.json();
       setLeaderboard(data);
+      return data;
     } catch (err) {
       console.error(err);
+    }
+  }
+
+  async function handleUserSubmit(e) {
+    e.preventDefault()
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/games/username`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName: username, gameId })
+      });
+      let data = null;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+      getLeaderboard()
+      if (!response.ok) {
+        console.log("error: ", data.error)
+        //create error state to display error message
+        return
+      }
+
+    } catch (err) {
+      console.error(err)
     }
   }
   return (
@@ -89,11 +117,25 @@ export default function App() {
       {isGameOver ? (
         <div>
           <h2>Gave Over! You won in {(finalTimeMs / 1000).toFixed(2)} seconds</h2>
+          <div>
+            {leaderboard.length < 10 || finalTimeMs < leaderboard[leaderboard.length - 1]?.durationMs ?
+              (<div>
+                <div>You have reached a top 10 score! Edit your username to save it in the Hall of Fame!</div>
+                <form onSubmit={handleUserSubmit}>
+                  <label htmlFor="username">Username: </label>
+                  <input type="text" id="username" name="username" value={username} onChange={(e) => { setUsername(e.target.value) }} required />
+                  <button type="submit">Save username change</button>
+                </form>
+              </div>) :
+              //add a play again button
+              <div>Your score has not reached top 10. Try again for a chance in the hall of fame!</div>
+            } 
+          </div>
           <h3>Global Leaderboard:</h3>
           <ol>
             {leaderboard.map((entry) => (
               <li key={entry.id}>
-                ({entry.playerName ?? "Anonymous"}) - {(entry.durationMs/1000).toFixed(2)} seconds
+                {entry.playerName ?? "Anonymous"} - {(entry.durationMs / 1000).toFixed(2)} seconds <strong>{entry.id === gameId ? "- YOUR ENTRY!" : ""}</strong>
               </li>
             ))}
           </ol>
@@ -138,50 +180,6 @@ export default function App() {
             </div>
           )}
         </div>}
-
-
-      {/* {!gameId ? (
-        <button onClick={startGame}>Start Game</button>
-      ) : (
-        <div className="image-wrapper" style={{ position: 'relative' }}>
-          <img
-            src="https://res.cloudinary.com/magicdoggo/image/upload/v1783315157/wheres-waldo_rcbhir.webp"
-            // src="wheres-waldo.webp"
-            alt="where's waldo image"
-            onClick={handleImageClick}
-            style={{ maxWidth: '100%' }}
-          />
-          {clickCoords && (
-            <div className="guess-character-container">
-              <div
-                style={{ position: 'fixed', inset: 0, zIndex: 5 }}  //covers entire screen while clickCoords are not null, to remove guess character tab on clicking anywhere
-                onClick={() => setClickCoords(null)}
-              />
-
-              <div
-                style={{
-                  position: 'absolute',
-                  left: `${clickCoords.x * 100}%`,
-                  top: `${clickCoords.y * 100}%`,
-                  width: 'max-content',
-                  zIndex: 10,
-                }}>
-                {notFoundCharacters.map((char) => (
-                  <button key={char.id} type="button" onClick={() => { guessCharacter(char.id) }}>
-                    <img src={char.iconUrl} alt={char.name}
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                      }} />
-                    <div>{char.name}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )} */}
-
       <div className="image-wrapper" style={{ position: 'relative' }}>
       </div>
     </div>

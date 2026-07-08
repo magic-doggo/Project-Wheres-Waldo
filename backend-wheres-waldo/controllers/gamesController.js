@@ -72,16 +72,16 @@ async function guessCharacter(req, res) {
                 where: {id: parseInt(gameId)}
             });
             const endedAt = new Date();
-            const duration = endedAt.getTime() - game.startedAt.getTime();
+            const durationMs = endedAt.getTime() - game.startedAt.getTime();
             await prisma.game.update({
                 where: {id: parseInt(gameId)},
                 data: {
                     endedAt: endedAt,
-                    durationMs: duration
+                    durationMs: durationMs
                 }
             });
             return res.status(200).json({
-                duration: duration,
+                durationMs: durationMs,
                 message: "You found everyone",
                 // match: true,
                 gameOver: true
@@ -110,15 +110,33 @@ async function getLeaderboard(req, res){
             orderBy: {durationMs: 'asc'},
             take: 10
         });
-        res.json(topScores);
+        return res.json(topScores);
     } catch(err) {
         console.error(err);
         res.status(500).json({error: "Failed to fetch Leaderboard"})
     }
 }
 
+async function updateUsername(req, res) {
+    const {gameId} = req.body;
+    const {playerName} = req.body;
+    try {
+        const username = await prisma.game.update({
+            where: {id: parseInt(gameId)},
+            data: {playerName}
+        });
+        return res.json({
+            message: `Player name updated to ${playerName}`
+        })
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({error: "Failed to save Player name"})
+    }
+}
+
 module.exports = {
     startGame,
     guessCharacter,
-    getLeaderboard
+    getLeaderboard,
+    updateUsername
 }
