@@ -83,7 +83,7 @@ async function guessCharacter(req, res) {
             return res.status(200).json({
                 durationMs: durationMs,
                 message: "You found everyone",
-                // match: true,
+                foundLocation: { x: character.xCoord, y: character.yCoord },
                 gameOver: true
             });
         };
@@ -91,7 +91,8 @@ async function guessCharacter(req, res) {
         //if they found a character, but not all 3
         return res.status(200).json({ 
             message: `You found ${character.name}!`,
-            gameOver: false 
+            gameOver: false,
+            foundLocation: {x: character.xCoord, y: character.yCoord}
         });
 
         

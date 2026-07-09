@@ -11,6 +11,7 @@ export default function App() {
   const [finalTimeMs, setFinalTimeMs] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [username, setUsername] = useState("");
+  const [foundMarkers, setFoundMarkers] = useState([]);
 
   const notFoundCharacters = characters.filter((char) => !foundCharacterIds.includes(char.id))
 
@@ -18,6 +19,7 @@ export default function App() {
     setIsGameOver(false);
     setFinalTimeMs(null);
     setFoundCharacterIds([]);
+    setFoundMarkers([]);
     try {
       const response = await fetch(`${API_BASE_URL}/api/games`, {
         method: "POST",
@@ -60,6 +62,9 @@ export default function App() {
         alert(data.error || data.message);
       } else {
         setFoundCharacterIds((prev) => [...prev, chosenCharacterId]);
+        if (data.foundLocation) {
+          setFoundMarkers((prev) => [...prev, data.foundLocation]);
+        }
         if (data.gameOver) {
           setIsGameOver(true);
           setFinalTimeMs(data.durationMs);
@@ -127,7 +132,7 @@ export default function App() {
                   <button type="submit">Save username change</button>
                 </form>
               </div>) :
-              //add a play again button
+              //add a play again button. not in the requirements, but can just add button and reset all state
               <div>Your score has not reached top 10. Try again for a chance in the hall of fame!</div>
             } 
           </div>
@@ -151,6 +156,22 @@ export default function App() {
             onClick={handleImageClick}
             style={{ maxWidth: '100%' }}
           />
+          {foundMarkers.map((marker, index) => (
+            <div
+              key={index}
+              style={{
+                position: "absolute",
+                left: `${marker.x * 100}%`,
+                top: `${marker.y * 100}%`,
+                width: "4%", //same as 0.02% guess acceptableDistance from centre of click in backend
+                height: "4%",
+                transform: "translate(-50%, -50%)", //move 50% of div width to left and up. by default, top-left corner would be at clickcoords. this moves box center to coords
+                border: "2px solid red",
+                borderRadius: "50%",
+                pointerEvents: "none",
+              }}
+            ></div>
+          ))}
           {clickCoords && (
             <div className="guess-character-container">
               <div
