@@ -119,6 +119,21 @@ export default function App() {
   return (
     <div>
       <h1>Where's Waldo</h1>
+      {!isGameOver && 
+      (<ul style={{ display: "flex", justifyContent: "space-evenly", listStyle: "none" }}>
+        {characters.map((char) => {
+          const isFound = foundCharacterIds.includes(char.id);
+          return (
+            <li key={char.id}
+              style={{ textDecoration: isFound ? "line-through" : "none", width: "30%", opacity: isFound ? 0.5 : 1 }}
+            >
+              <img src={char.iconUrl} alt={char.name} style={{ width: "40px", height: "40px", border: "1px solid black" }} />
+              <br />
+              {char.name}
+            </li>
+          )
+        })}
+      </ul>)}
       {isGameOver ? (
         <div>
           <h2>Gave Over! You won in {(finalTimeMs / 1000).toFixed(2)} seconds</h2>
@@ -134,7 +149,7 @@ export default function App() {
               </div>) :
               //add a play again button. not in the requirements, but can just add button and reset all state
               <div>Your score has not reached top 10. Try again for a chance in the hall of fame!</div>
-            } 
+            }
           </div>
           <h3>Global Leaderboard:</h3>
           <ol>
